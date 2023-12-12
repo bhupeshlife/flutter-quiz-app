@@ -36,10 +36,16 @@ class _MyAppState extends State<MyApp> {
 
     if (selectedAnswers.length == questions.length) {
       setState(() {
-        selectedAnswers = [];
         activeScreen = 'results-screen';
       });
     }
+  }
+
+  void restartQuiz() {
+    setState(() {
+      selectedAnswers = [];
+      activeScreen = 'questions-screen';
+    });
   }
 
   @override
@@ -58,6 +64,7 @@ class _MyAppState extends State<MyApp> {
     if (activeScreen == 'results-screen') {
       screenWidget = ResultScreen(
         chosenAnswers: selectedAnswers,
+        onRestart: restartQuiz,
       );
     }
     return MaterialApp(
