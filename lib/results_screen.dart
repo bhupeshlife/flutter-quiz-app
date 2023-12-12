@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:quiz_app/data/questions.dart';
+import 'package:quiz_app/question_summary.dart';
 
-class ResultScreen extends StatefulWidget {
-  const ResultScreen({super.key, required this.chosenAnswers});
+class ResultScreen extends StatelessWidget {
+  const ResultScreen(
+      {super.key, required this.chosenAnswers, required this.onRestart});
 
+  final void Function() onRestart;
   final List<String> chosenAnswers;
 
   List<Map<String, Object>> getSummeryData() {
@@ -13,8 +16,8 @@ class ResultScreen extends StatefulWidget {
     for (var i = 0; i < chosenAnswers.length; i++) {
       summary.add(
         {
-          'questions_index': i,
-          'questions': questions[i].text,
+          'question_index': i,
+          'question': questions[i].text,
           'correct_answer': questions[i].answers[0],
           'user_answer': chosenAnswers[i],
         },
@@ -24,93 +27,70 @@ class ResultScreen extends StatefulWidget {
   }
 
   @override
-  State<ResultScreen> createState() => _ResultScreenState();
-}
-
-class _ResultScreenState extends State<ResultScreen> {
-  @override
   Widget build(BuildContext context) {
+    final summaryData = getSummeryData();
+    final numTotalQuestions = questions.length;
+    final numCorrectQuestion = summaryData.where((data) {
+      return data['user_answer'] == data['correct_answer'];
+    }).length;
     return Scaffold(
-      body: getBody(),
-      backgroundColor: Colors.deepPurpleAccent,
-    );
-  }
-
-  Widget getBody() {
-    return SafeArea(
-      child: Column(
-        children: [
-          getTitleText(),
-          getAnswerText(),
-          getStartQuizButton(),
-        ],
-      ),
-    );
-  }
-
-  Widget getTitleText() {
-    return Padding(
-      padding: const EdgeInsets.only(top: 30),
-      child: Text(
-        'You answered X out of Y questions Correctly!',
-        style: GoogleFonts.lato(
-          // fontWeight: FontWeight.bold,
-          fontSize: 20,
-          color: Colors.white,
-        ),
-      ),
-    );
-  }
-
-  Widget getAnswerText() {
-    return Padding(
-      padding: const EdgeInsets.only(top: 30),
-      child: Text(
-        'List of answers and questions',
-        style: GoogleFonts.lato(
-          // fontWeight: FontWeight.bold,
-          fontSize: 20,
-          color: Colors.white,
-        ),
-      ),
-    );
-  }
-
-  Widget getStartQuizButton() {
-    return Padding(
-      padding: const EdgeInsets.only(top: 15),
-      child: InkWell(
-        onTap: () {},
+      body: SizedBox(
+        width: double.infinity,
         child: Container(
-          height: 50,
-          width: 130,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(width: 2, color: Colors.white),
-            color: Colors.deepPurpleAccent,
-          ),
-          child: const Row(
-            mainAxisAlignment: MainAxisAlignment.center,
+          margin: const EdgeInsets.all(40),
+          child: Column(
             children: [
-              Text(
-                'Restart Quiz',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 17,
-                  color: Colors.white,
+              Padding(
+                padding: const EdgeInsets.only(top: 30),
+                child: Text(
+                  'You answered $numCorrectQuestion out of $numTotalQuestions questions Correctly!',
+                  style: GoogleFonts.lato(
+                    fontSize: 20,
+                    color: Colors.white,
+                  ),
                 ),
               ),
-              SizedBox(
-                width: 2,
+              QuestionSummery(summaryData),
+              Padding(
+                padding: const EdgeInsets.only(top: 15),
+                child: InkWell(
+                  onTap: onRestart,
+                  child: Container(
+                    height: 50,
+                    width: 130,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(width: 2, color: Colors.white),
+                      color: Colors.deepPurpleAccent,
+                    ),
+                    child: const Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          'Restart Quiz',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 17,
+                            color: Colors.white,
+                          ),
+                        ),
+                        SizedBox(
+                          width: 2,
+                        ),
+                        Icon(
+                          Icons.arrow_forward,
+                          color: Colors.white,
+                        )
+                      ],
+                    ),
+                  ),
+                ),
               ),
-              Icon(
-                Icons.arrow_forward,
-                color: Colors.white,
-              )
             ],
           ),
         ),
       ),
+      backgroundColor: Colors.deepPurpleAccent,
     );
   }
 }
